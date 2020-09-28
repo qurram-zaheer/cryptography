@@ -3,6 +3,8 @@
 #include <string.h>
 
 #define MAXBUFLEN 1000
+#define MAXKEYLEN 100
+#define MX 5
 
 char *CEASER = "ceaser";
 char *VIGINERE = "viginere";
@@ -162,31 +164,212 @@ void overlord(int cipher_hash, int process)
 void ceaser_enc(char buffer[MAXBUFLEN])
 {
   //TODO: Ceaser encryption
-  printf("CEASER ENCRYPT\n");
+  int key;
+  char ch;
+  printf("Enter the key: ");
+  scanf("%d", &key);
+
+  for (int i = 0; buffer[i] != '\0'; i++)
+  {
+    ch = buffer[i];
+
+    if (ch >= 'a' && ch <= 'z')
+    {
+      ch = ch + key;
+
+      if (ch > 'z')
+      {
+        ch = ch - 'z' + 'a' - 1;
+      }
+
+      buffer[i] = ch;
+    }
+    else if (ch >= 'A' && ch <= 'Z')
+    {
+      ch = ch + key;
+
+      if (ch > 'Z')
+      {
+        ch = ch - 'Z' + 'A' - 1;
+      }
+
+      buffer[i] = ch;
+    }
+  }
+
+  printf("%s\n", buffer);
 }
 
 void ceaser_dec(char buffer[MAXBUFLEN])
 {
   //TODO: Ceaser decryption
-  printf("CEASER DECRYPT\n");
+  int key;
+  char ch;
+
+  printf("Enter the key: ");
+  scanf("%d", &key);
+
+  for (int i = 0; buffer[i] != '\0'; i++)
+  {
+    ch = buffer[i];
+    if (ch >= 'a' && ch <= 'z')
+    {
+      ch = ch - key;
+
+      if (ch < 'a')
+      {
+        ch = ch + 'z' - 'a' + 1;
+      }
+
+      buffer[i] = ch;
+    }
+    else if (ch >= 'A' && ch <= 'Z')
+    {
+      ch = ch - key;
+
+      if (ch < 'A')
+      {
+        ch = ch + 'Z' - 'A' + 1;
+      }
+
+      buffer[i] = ch;
+    }
+  }
+  printf("Decrypted message: %s\n", buffer);
 }
 
 void vigi_enc(char buffer[MAXBUFLEN])
 {
   //TODO: Viginere encryption
-  printf("VIGINERE ENCRYPT\n");
+  char key[MAXKEYLEN];
+  printf("Enter Key: ");
+  fflush(stdin);
+  scanf("%[^\n]s", key);
+  int message_length = strlen(buffer), count, j;
+  char temp_key[message_length], encrypted_message[message_length], decrypted_message[message_length];
+  for (count = 0, j = 0; count < message_length; ++count, ++j)
+  {
+    if (j == strlen(key))
+    {
+      j = 0;
+    }
+    temp_key[count] = key[j];
+  }
+  temp_key[count] = '\0';
+
+  count = 0;
+  while (count < message_length)
+  {
+
+    if (buffer[count] != ' ')
+    {
+
+      encrypted_message[count] = ((buffer[count] + temp_key[count]) % 26) + 'A';
+    }
+
+    else
+      encrypted_message[count] = ' ';
+
+    count = count + 1;
+  }
+  encrypted_message[count] = '\0';
+  printf("encrypted message: %s\n", encrypted_message);
 }
 
 void vigi_dec(char buffer[MAXBUFLEN])
 {
   //TODO: Viginere decryption
-  printf("VIGINERE DECRYPT\n");
+  char key[MAXKEYLEN];
+  printf("Enter Key: ");
+  fflush(stdin);
+  scanf("%[^\n]s", key);
+  int message_length = strlen(buffer), key_length = strlen(key), count, j;
+  char temp_key[message_length], decrypted_message[message_length];
+  for (count = 0, j = 0; count < message_length; ++count, ++j)
+  {
+    if (j == key_length)
+    {
+      j = 0;
+    }
+    temp_key[count] = key[j];
+  }
+  temp_key[count] = '\0';
+  count = 0;
+  while (count < message_length)
+  {
+    decrypted_message[count] = (((buffer[count] - temp_key[count]) + 26) % 26) + 'A';
+    count = count + 1;
+  }
+  decrypted_message[count] = '\0';
+  printf("%s\n", decrypted_message);
 }
 
 void playfair_enc(char buffer[MAXBUFLEN])
 {
   //TODO: Playfair encryption
-  printf("PLAYFAIR ENCRYPT\n");
+  char key[MAXKEYLEN], cleaned_key[MAXKEYLEN];
+  printf("Enter Key: ");
+  fflush(stdin);
+  scanf("%[^\n]s", key);
+
+  ///// KEY CLEANING
+  int alph_arr[26];
+  for (int i = 0; i < 26; i++)
+  {
+    alph_arr[i] = 0;
+  }
+
+  int count;
+
+  for (int i = 0; key[i] != '\0'; i++)
+  {
+    int index = key[i] - 'A';
+    if (alph_arr[index] == 0)
+    {
+      cleaned_key[count] = key[i];
+      count++;
+    }
+    alph_arr[index]++;
+  }
+  cleaned_key[count] = '\0';
+  printf("Cleaned key: %s\n", cleaned_key);
+  printf("%d\n", (int)strlen(cleaned_key));
+
+  char matrix[MX][MX];
+  matrix[0][0] = cleaned_key[0];
+  printf("%c\n", matrix[0][0]);
+
+  int i = 0, j = 0;
+  for (int t = 0; t < (int)strlen(cleaned_key); t++)
+  {
+
+    if (i >= MX)
+    {
+      i = 0;
+      j++;
+    }
+    printf("i: %d j: %d\n", i, j);
+    // matrix[0][0] = (char)cleaned_key[t];
+    // printf("%c\n", cleaned_key[0]);
+    i++;
+  }
+
+  // for (int l = 0; l < 26; l++)
+  // {
+  //   if (i >= MX)
+  //   {
+  //     i = 0;
+  //     j++;
+  //   }
+  //   if (j >= MX)
+  //   {
+  //     break;
+  //   }
+  //   if (alph_arr[l] == 0)
+  //   {
+  //     matrix[i][j] = 'A' + alph_arr[l];
+  //   }
+  // }
 }
 
 void playfair_dec(char buffer[MAXBUFLEN])
